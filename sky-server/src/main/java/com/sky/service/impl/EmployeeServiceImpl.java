@@ -1,16 +1,20 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -91,5 +96,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
         // 最后调用持久层进行  数据的插入
         employeeMapper.insert(employee);
+    }
+
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 基于mybatis 的pagehelper 实现 分页查询
+                // 基于mybatis 的拦截器, 进行sql语句的加强 ,动态的拼接 一段limit语句用于分页查询
+        // 或者mybatisplus 也可以实现
+        PageHelper.startPage(employeePageQueryDTO.getPage() , employeePageQueryDTO.getPageSize()); // 在哪一页开始? 查询多少条?
+        // 接下来调用的sql语句就会被自动增强, 添加limit的分页语句
+        Page<Employee> page =employeeMapper.pageQuery(employeePageQueryDTO) ; // 注意遵循helper 的 使用规则, 返回Page 对象
+        // 泛型使用employee实体, 因为这里是查询数据库, 必须一一对应
+
+        // 注意page其实封装的是一个泛型的 集合, list , 是一个数组
+        // 最后要返回一个pageResult对象, 所以需要对 page 进行解析
+        long total = page.getTotal();
+        List<Employee> records = page.getResult();
+        return new PageResult(total, records);
     }
 }

@@ -2,4 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.EmployeeMapper">
+<!--注意 namespace +id 锁定 dao层的一个方法!  这里可以自动生成  的! -->
+<!-- 这里 like 是模糊搜索 , concat是拼接函数, 意思是张什么和什么张都会被搜到 , 使用动态where标签 , 以及 根据 创建时间降序排序-->
+    <select id="pageQuery" resultType="com.sky.entity.Employee">
+        select * from employee <where>
+        <if test="name != null and name !=''"> and name like concat('%', #{name} , '%') </if>
+    </where>
+       order by create_time desc
+    </select>
 </mapper>

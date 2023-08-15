@@ -1,5 +1,7 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -27,4 +29,8 @@ public interface EmployeeMapper {
     // 所以可以识别 属性, 注意顺序要对
 
     void insert(Employee employee);
+
+
+    Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
 }
