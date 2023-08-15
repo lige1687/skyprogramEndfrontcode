@@ -118,4 +118,23 @@ public class EmployeeController {
         //
         return Result.success();
     }
+    @GetMapping ("/{id}")
+    @ApiOperation("查询员工操作")
+    // 查询 的是 员工所有的数据 , 所以返回 entity即可
+    public  Result<Employee> getById(@PathVariable("id") Long id)
+    {
+       Employee employee= employeeService.getById(id);
+        return  Result.success(employee);
+    }
+
+    @ApiOperation("编辑员工")
+    @PostMapping( )
+    public  Result update ( @RequestBody EmployeeDTO employeeDTO)
+    {
+        log.info("编辑员工信息 {}" , employeeDTO) ;
+         employeeService.update(employeeDTO);
+
+        return Result.success();
+    }
+
 }

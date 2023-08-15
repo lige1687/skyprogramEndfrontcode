@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -115,6 +116,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(total, records);
     }
 
+
+
+    @Override
+    public Employee getById(Long id) {
+        Employee employee= employeeMapper.getById(id);
+        employee.setPassword("****"); //不让你看到密码
+        return employee;
+    }
+
     @Override
     public void startOrStop(Integer status, Long id) {
              // 启用和禁用本质是一个sql , 修改操作, 修改员工的 status 字段 ,根据id修改
@@ -129,5 +139,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employeeMapper.update(employee);
 
+    }
+
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        Employee employee = new Employee() ;
+        // 进行类型转换, 以使用 dao层的写好的接口
+        // 将相同的字段部分进行拷贝
+        BeanUtils.copyProperties(employeeDTO, employee);
+        // 不同的字段部分单独设置, 修改时间, 修改者等
+        employee.setUpdateTime(LocalDateTime.now());
+        // 通过threadlocal , 在拦截器阶段就截取该请求的 调用者, 并且线程全局的从 拦截器夸层的 传递到 service层使用
+       // 因为每一次请求都会过拦截器, 直接从拦截器截取 用户信息
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.update(employee);
+
+
+        return ;
     }
 }
