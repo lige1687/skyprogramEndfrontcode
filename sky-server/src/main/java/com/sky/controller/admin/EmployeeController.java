@@ -98,4 +98,24 @@ public class EmployeeController {
 
         return Result.success(pageResult);
     }
+
+    /**
+     * 启用禁用员工
+     * @param status
+     * @param id
+     * @return
+     */
+    // 这里不需要泛型, 因为不需要返回前端数据, 不是查询操作
+    // 只需要返回一个code 即可 , 根据 需求进行分析即可
+    @ApiOperation("启用和禁用员工")
+    @PostMapping("/status/{status}")
+    // 路径参数需要通过pathvariable去修饰 , 而id 非路径参数, 是 Query形式的, 直接 写到形参中就可以自动匹配 ,保证名字一致即可
+    // 注意路径参数和query参数的区别! variable和param 注解的value 是在名字不一致的 时候使用的 ,用于匹配
+    public  Result startOrStop(@PathVariable("status") Integer status ,  Long id)
+    {
+        log.info("启用禁用员工账号状态{} , id {}" , status, id );
+        employeeService.startOrStop(status , id); // 需要我们的service 返回一个什么数据?
+        //
+        return Result.success();
+    }
 }

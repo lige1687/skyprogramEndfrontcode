@@ -114,4 +114,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> records = page.getResult();
         return new PageResult(total, records);
     }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+             // 启用和禁用本质是一个sql , 修改操作, 修改员工的 status 字段 ,根据id修改
+        // update employee set status=? where id=?
+        // 我们希望的是书写动态sql , 这样不论传入的是id  还是什么用户名, 都可以去修改 对应的status
+        //提升复用性!  所以这里直接给mapper传入  参数不合理, 写死了
+        Employee employee = Employee.builder().status(status).id(id).build();
+        // 通过lombo提供的@Builder 注解, 对类的链式 set
+        // 以 类名.builder (). 属性名(值).属性名(值).build () 表示构造结束
+
+
+
+        employeeMapper.update(employee);
+
+    }
 }
