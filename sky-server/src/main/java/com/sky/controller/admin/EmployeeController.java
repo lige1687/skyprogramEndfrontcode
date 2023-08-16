@@ -76,15 +76,7 @@ public class EmployeeController {
         return Result.success();
     }
 
-    @ApiOperation("新增操作")
-    @PostMapping
-    public Result save ( @RequestBody EmployeeDTO employeeDTO)
-    {
-        log.info( "新增员工 {} " , employeeDTO); // log 的占位符
-        employeeService.save( employeeDTO);
 
-        return Result.success();
-    }
     @ApiOperation("员工 分页查询")
     @GetMapping(value="/page")
     // 封装的是 page result 的类似数据
@@ -125,9 +117,18 @@ public class EmployeeController {
        Employee employee= employeeService.getById(id);
         return  Result.success(employee);
     }
+    @ApiOperation("新增操作")
 
+    @PostMapping
+    public Result save ( @RequestBody EmployeeDTO employeeDTO)
+    {
+        log.info( "新增员工 {} " , employeeDTO); // log 的占位符
+        employeeService.save( employeeDTO);
+
+        return Result.success();
+    }
     @ApiOperation("编辑员工")
-    @PostMapping( )
+    @PutMapping
     public  Result update ( @RequestBody EmployeeDTO employeeDTO)
     {
         log.info("编辑员工信息 {}" , employeeDTO) ;

@@ -13,7 +13,7 @@ import java.io.ByteArrayInputStream;
 @AllArgsConstructor
 @Slf4j
 public class AliOssUtil {
-
+ // 这几个类还没初始化 ,所以我们需要在配置类进行配置
     private String endpoint;
     private String accessKeyId;
     private String accessKeySecret;
@@ -60,7 +60,7 @@ public class AliOssUtil {
                 .append(endpoint)
                 .append("/")
                 .append(objectName);
-
+        // 通过绝对路径, 拼接成 完整的url , 因为oss传回来的是相对路径!
         log.info("文件上传到:{}", stringBuilder.toString());
 
         return stringBuilder.toString();

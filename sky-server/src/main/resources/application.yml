@@ -38,3 +38,12 @@ sky:
     admin-ttl: 720000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+  # 在 propertites中已经定义了一个配置属性类 ConfigurationPropertites ,所以这里有提示!
+  # 读取配置文件到 一个java对象中, 封装 配置信息,
+  alioss:
+    endpoint: ${sky.alioss.endpoint}
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
+
+

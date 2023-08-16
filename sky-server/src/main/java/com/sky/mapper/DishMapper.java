@@ -1,7 +1,12 @@
 package com.sky.mapper;
 
+import com.sky.annotation.AutoFill;
+import com.sky.entity.Dish;
+import com.sky.enumeration.OperationType;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper
 public interface DishMapper {
@@ -14,4 +19,11 @@ public interface DishMapper {
     @Select("select count(id) from dish where category_id = #{categoryId}")
     Integer countByCategoryId(Long categoryId);
 
+    /**
+     * 插入菜品数据
+     * @param dish
+     */
+    @AutoFill(OperationType.INSERT) // 使用写好的加强 aop , 进行username的插入
+    void insert(Dish dish);
+    // insert字段比较多, 所以直接xml , 写动态sql , 增强复用性
 }
