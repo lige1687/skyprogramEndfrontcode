@@ -118,8 +118,7 @@ public class EmployeeController {
         //
         return Result.success();
     }
-    @GetMapping ("/{id}")
-    @ApiOperation("查询员工操作")
+    @GetMapping ("/{id}")    @ApiOperation("查询员工操作")
     // 查询 的是 员工所有的数据 , 所以返回 entity即可
     public  Result<Employee> getById(@PathVariable("id") Long id)
     {

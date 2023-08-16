@@ -88,13 +88,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 便于维护
          employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
       // 设置修改时间
-       employee.setCreateTime(LocalDateTime.now());
-       employee.setUpdateTime(LocalDateTime.now());
-       //设置创建用户id
-        // # TODO 目前无法解决, 等后续学到一个技术,才能获取到对应的 创建用户的 值
-        // 这里先写死
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//       employee.setCreateTime(LocalDateTime.now());
+//       employee.setUpdateTime(LocalDateTime.now());
+//       //设置创建用户id
+//
+//        // 这里先写死
+//        employee.setCreateUser(BaseContext.getCurrentId());
+//        employee.setUpdateUser(BaseContext.getCurrentId());
         // 最后调用持久层进行  数据的插入
         employeeMapper.insert(employee);
     }
@@ -143,15 +143,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void update(EmployeeDTO employeeDTO) {
-        Employee employee = new Employee() ;
-        // 进行类型转换, 以使用 dao层的写好的接口
-        // 将相同的字段部分进行拷贝
-        BeanUtils.copyProperties(employeeDTO, employee);
-        // 不同的字段部分单独设置, 修改时间, 修改者等
-        employee.setUpdateTime(LocalDateTime.now());
-        // 通过threadlocal , 在拦截器阶段就截取该请求的 调用者, 并且线程全局的从 拦截器夸层的 传递到 service层使用
-       // 因为每一次请求都会过拦截器, 直接从拦截器截取 用户信息
-        employee.setUpdateUser(BaseContext.getCurrentId());
+      Employee employee = new Employee() ;
+//        // 进行类型转换, 以使用 dao层的写好的接口
+//        // 将相同的字段部分进行拷贝
+//        BeanUtils.copyProperties(employeeDTO, employee);
+//        // 不同的字段部分单独设置, 修改时间, 修改者等
+//        employee.setUpdateTime(LocalDateTime.now());
+//        // 通过threadlocal , 在拦截器阶段就截取该请求的 调用者, 并且线程全局的从 拦截器夸层的 传递到 service层使用
+//       // 因为每一次请求都会过拦截器, 直接从拦截器截取 用户信息
+//        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.update(employee);
 
 

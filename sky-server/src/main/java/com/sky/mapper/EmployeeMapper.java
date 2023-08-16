@@ -1,8 +1,10 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.annotation.AutoFill;
 import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
+import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -27,12 +29,12 @@ public interface EmployeeMapper {
             )
    // 注意 这里通过 #{ }  进行解析 employee 参数中的属性, 使用的是驼峰命名, myabtis 中设置了 表下划线和驼峰命名 的转换
     // 所以可以识别 属性, 注意顺序要对
-
+  @AutoFill(value = OperationType.INSERT) // 指定 要加强的方法以及 操作类型 枚举
     void insert(Employee employee);
 
 
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
-
+ @AutoFill(value = OperationType.UPDATE)
     void update(Employee employee);
 
     // 较为简单,直接通过 注解查询
