@@ -1,6 +1,7 @@
 package com.sky.config;
 
 import com.sky.interceptor.JwtTokenAdminInterceptor;
+import com.sky.interceptor.JwtTokenUserInterceptor;
 import com.sky.json.JacksonObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+    @Autowired
+    private JwtTokenUserInterceptor jwtTokenUserInterceptor;
+
 
     /**
      * 注册自定义拦截器
@@ -40,6 +44,15 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns("/admin/employee/login");
+        registry.addInterceptor(jwtTokenUserInterceptor).
+                addPathPatterns("/user/**").   // 排除一些  不允许拦截的 路径, 单独排除出去
+                // 这里排除登陆方法是因为, 就是通过登陆获取jwt , 拦截器拦截会检查jwt ,还没登陆怎么说?
+                        // 所以先把登陆放行
+                excludePathPatterns("/user/user/login").
+                //这个方法是因为 该路径发出的很早, 在登陆前就发出了, 所以需要如此设置
+                excludePathPatterns("/user/shop/status") ;
+
+
     }
 
     /**

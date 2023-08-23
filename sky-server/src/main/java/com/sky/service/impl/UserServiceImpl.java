@@ -1,6 +1,5 @@
 package com.sky.service.impl;
 
-import com.alibaba.druid.util.HttpClientUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sky.constant.MessageConstant;
@@ -12,9 +11,6 @@ import com.sky.properties.WeChatProperties;
 import com.sky.service.UserService;
 import com.sky.utils.HttpClientUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.aspectj.bridge.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +34,38 @@ private WeChatProperties wxproperties;
      * 功能主要是获取 openid (通过dto中的 code授权码
      */
     @Override
+
+
     public User wxlogin(UserLoginDTO loginDTO) {
+        String openid = getOpenid(loginDTO.getCode(), loginDTO);  // 久违的 抽取成 一个私有的方法进行封装( 因为代码较为固定
+        // 获取openid 的方法
+
+
+        if( openid== null)
+        {
+            throw new LoginFailedException(MessageConstant.LOGIN_FAILED) ;// 抛出一个 new异常
+        }
+
+        // 3.检测id是否在我们的 数据库中已经存在了? 如果没有就是新用户, 需要进行注册 ( 这里才涉及数据库的操作
+        User user = userMapper.getByOpenId(openid);
+
+        // 4. 如果是 新用户, 就需要自动的保存ser对象, 实现自动的注册
+
+        if(user==null)
+{
+    // 表示新用户, 我们需要注册 ,我们只需要做到初始设置即可, 能获取到的先获取了, 存到表中, 后续 用户会自己完善信息的
+     user = User.builder().
+             openid(openid).
+             createTime(LocalDateTime.now()).
+             build();
+     userMapper.insert(user);
+
+}
+ return user ;
+
+    }
+    private String getOpenid(String code, UserLoginDTO loginDTO)
+    {
         // 1.调用微信的接口, 获取openid
         // 后端发送请求, 通过 httpClient 框架 , 这里写成了工具类进行操作
         HashMap<String, String> map = new HashMap<>();
@@ -55,25 +82,7 @@ private WeChatProperties wxproperties;
         String json = HttpClientUtil.doGet(WX_LOGIN, map);
         // 通过fastjson 进行数据的解析, 解析为一个 java对象!
         JSONObject jsonObject = JSON.parseObject(json);
-        String openid = jsonObject.getString("openid");// 通过json对应的属性名字去获取 openid
-        if( openid== null)
-        {
-            throw new LoginFailedException(MessageConstant.LOGIN_FAILED) ;// 抛出一个 new异常
-        }
-
-        // 3.检测id是否在我们的 数据库中已经存在了? 如果没有就是新用户, 需要进行注册 ( 这里才涉及数据库的操作
-        User user = userMapper.getByOpenId(openid);
-if(user==null)
-{
-    // 表示新用户, 我们需要注册 ,我们只需要做到初始设置即可, 能获取到的先获取了, 存到表中, 后续 用户会自己完善信息的
-     user = User.builder().
-             openid(openid).
-             createTime(LocalDateTime.now()).
-             build();
-
-}
-
-        // 4. 如果是 新用户, 就需要自动的保存ser对象, 实现自动的注册
-        return null;
+        return jsonObject.getString("openid");
     }
+
 }
