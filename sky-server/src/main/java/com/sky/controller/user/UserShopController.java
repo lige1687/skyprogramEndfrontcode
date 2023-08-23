@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-@RestController ("UserShopController")
+//@RestController ("UserController")
 @Slf4j
 @Api( tags = "商店相关接口") // 根据admin controller 改改即可
 @RequestMapping("/user/shop")
-public class ShopController {
+public class UserShopController {
     public static final String key ="SHOP_STATUS";
     @Autowired
     private RedisTemplate redisTemplate;

@@ -17,3 +17,8 @@ sky:
     password: 168738
     database: 10
     connect-timeout: 5000
+
+
+  wechat:
+    appid: wx3186918dc24fa257
+    secret: d6960cc569e683f5e30ca5dae3e47d0d
