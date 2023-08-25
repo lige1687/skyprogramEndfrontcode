@@ -19,7 +19,7 @@ import java.util.Set;
 @Api (tags = "菜品相关接口")
 @RequestMapping("/admin/dish")
 @Slf4j
-public class DishController
+public class adminDishController
 
 {
     @Autowired

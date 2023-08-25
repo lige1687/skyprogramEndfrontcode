@@ -14,7 +14,7 @@ import java.util.List;
 @RestController("userCategoryController")
 @RequestMapping("/user/category")  // 获取 分类id , type =1 表示 菜品, 2表示 套餐 , 该参数可选
 @Api(tags = "C端-分类接口")
-public class CategoryController {
+public class userCategoryController {
 
     @Autowired
     private CategoryService categoryService;

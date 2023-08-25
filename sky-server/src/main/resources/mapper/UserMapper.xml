@@ -6,9 +6,9 @@
 <!--将 插入产生的主键进行返回, 便于后续 需要插入口味表中, UserId 的获取-->
 <!--    根据已有的 代码进行改造即可, 注意 数据要和数据库中的字段对上-->
     <insert id="insert" parameterType="com.sky.entity.User" useGeneratedKeys="true"  keyProperty="id">
-        <insert id="insert" parameterType="com.sky.entity.Dish" useGeneratedKeys="true"  keyProperty="id">
+
             insert into user ( openid, name , phone, sex  , id_number , avatar, create_time)
             values ( #{openid} , #{name} , #{phone} , #{sex} , #{ idNumber} , #{avatar} , #{createTime}    );
         </insert>
-    </insert>
+
 </mapper>

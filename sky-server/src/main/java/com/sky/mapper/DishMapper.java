@@ -3,6 +3,7 @@ package com.sky.mapper;
 import com.sky.annotation.AutoFill;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -31,5 +32,8 @@ public interface DishMapper {
     // TODO  前边代码的编写,中间跳过了一段
     @Select("select ")
     List<Dish> list(Dish dish);
+
+    @Select("select * from dish where id = #{dishId}  ")
+    Dish getByiId(Long dishId);
     // insert字段比较多, 所以直接xml , 写动态sql , 增强复用性
 }
