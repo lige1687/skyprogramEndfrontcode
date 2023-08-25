@@ -94,4 +94,30 @@ shoppingCart.setAmount(dish.getPrice()); //设置金额, 注意 字段不一致
         // 如果不存在, 才是一个insert 的操作, 插入一个购物车
 
     }
+
+    /**
+     *查看购物车
+     * @return
+     */
+    @Override
+    public List<ShoppingCart> showShoppingCart() {
+        Long currentId = BaseContext.getCurrentId();
+        // 通过ThreaLocal 获取 userid即可
+        ShoppingCart cart = new ShoppingCart();
+        cart.setId(currentId);
+        // 利用已经创建好的查询 mapper方法, 但是人家需要一个 cart对象传入 ,以便 动态sql的 书写
+        // 所以这里手动构建一个即可
+
+        List<ShoppingCart> list = shoppingCartMapper.list(cart);// 当前只需要传userid即可 查询
+return  list ;
+    }
+
+    @Override
+    public void cleanShoppingCart() {
+        // 根据userid进行删除即可
+        Long currentId = BaseContext.getCurrentId();
+
+        shoppingCartMapper.deleteByUserId (currentId);
+
+    }
 }
