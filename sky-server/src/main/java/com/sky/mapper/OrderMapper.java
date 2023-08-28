@@ -1,11 +1,13 @@
 package com.sky.mapper;
 
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -56,4 +58,6 @@ public interface OrderMapper {
 
 
     Integer countByMap(HashMap<Object, Object> map);
+
+    List<GoodsSalesDTO> getSalesTop(LocalDateTime begin , LocalDateTime end) ;
 }

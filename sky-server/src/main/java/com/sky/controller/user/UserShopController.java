@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user/shop")
 public class UserShopController {
     public static final String key ="SHOP_STATUS";
+
     @Autowired
     private RedisTemplate redisTemplate;
 

@@ -1,27 +1,27 @@
 package com.sky.service.impl;
 
-import com.github.xiaoymin.knife4j.core.util.StrUtil;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
+import com.sky.mapper.OrderDetailMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
-import com.sky.result.Result;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.DataOutput;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -37,9 +37,17 @@ public class ReportServiceImpl  implements ReportService {
     private OrderMapper orderMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private OrderDetailMapper orderDetailMapper; // 在明细表里记录的是 不同的菜品和套餐的 个数( 由于 不同风味的在这里不算同一条数据
+    // 但是我们统计菜品和商品的总份数 , 这里又 看做不同口味的是一种 菜品了
+    // 以及检测 对应的 orders表中 中订单 的状态是否是已经完成的 ? 如果不是还不算 销量, 因为根本没卖出去( details只是每一个订单 的所有内含有的菜品 ,看不出 是否该订单 已经完成了
+    // 所以需要引入 ordersMapper 来检测对应 的 订单状态!
+
+    // 纱布了, 语句写完再去看报错!!! , 你这里还没写完呢, 看个几把报错
+
     @Override
-    public TurnoverReportVO getTrunoverStatistics
-    (LocalDate begin, LocalDate end)
+    public TurnoverReportVO getTrunoverStatistics(LocalDate begin,
+                                                  LocalDate end)
     {
         // 计算出 日期list和营业额list
 
@@ -195,6 +203,44 @@ Integer totalOrders= orderMapper.countByMap( map); // 已有的方法不能用,�
                 .validOrderCount(ValidOrderCount).
                 orderCompletionRate(orderCompletionRate).
                 build();
+    }
+
+    /**
+     * 获取销量前十的 菜品或者套餐的 排行榜( 意味着 排序
+     * @param begin 开始日期
+     * @param end 结束日期
+     * @return 返回的是封装好的vo对象
+     */
+    @Override
+    public SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end) {
+        // 注意 , 表示的是多个字段之间的间隔, 没有 , 表示起别名!!  给前边的整体起别名
+        //  查询所用的 sql 语句 select  od.name , sum(od.number) number from order_details od , orders o where od.order_id = o.id and o.status = 5 and 时间区间在一 一段时间内!
+        // group by  od.name  order by  number desc limit 0 , 10 根据菜品或者套餐的名称进行 分组展示!( 如果select 了多个 字段,  必须指定一个字段来分组
+        // limit 起始数据 是从哪个开始, 查询几个数据, 这里就是从第0 个开始看 10个即可
+        // 设计 逻辑主键的 匹配, od的 订单id和 真正的订单id 匹配才是 一个合法的数据, 并且判断状态是否是已经完成的, 5, 不然不能算到销量里去
+
+
+        //这里调用的 top10 所需要传入的是LocalDateTime类型的begin和end , 需要手动封装一下
+        LocalDateTime begintime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endtime = LocalDateTime.of(end, LocalTime.MAX);
+
+        List<GoodsSalesDTO> salesTop10 = orderMapper.getSalesTop(begintime, endtime);
+
+        // 得到一个list集合, 但是返回的应该是一个vo , 此时需要手动的进行vo 的封装
+        // 我们需要的是将name 拿出来, 拼接成一个字符串, 以  , 进行分割( 使用stringUtil, 并且准备一个name 的list
+        // for循环可以, 但是繁琐, 此时可以通过stream流进行处理, 更加间接 effictive
+        List<String> names = salesTop10.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        // map表示执行一个函数 , 该函数是对 list中每一个元素这里也就是dto都要执行的方法  ,  此时 整个主题的结果就是 每一个dto所get到的name
+        // collect 表示将list 每一个执行getname获取到的name 收集为一个什么 集合? 这里是一个新的list
+        String namelist = StringUtil.join(",", names);
+
+
+        // 来, 在尝试理解一下! stream针对list 的每一个元素进行的操作, 是一种函数式的编程!
+        List<Integer> numbers = salesTop10.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        String numberlist = StringUtil.join(",", numbers);
+
+
+        return SalesTop10ReportVO.builder().nameList(namelist).numberList(numberlist).build();
     }
 
 }
