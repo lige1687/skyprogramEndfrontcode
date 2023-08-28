@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
@@ -15,6 +16,7 @@ import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.BeanUtils;
@@ -28,7 +30,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -46,6 +50,8 @@ public class OrderServiceImpl implements OrderService {
     private UserMapper userMapper;
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private WebSocketServer webSocketServer;
     /**
      * 用户下单  ,主要涉及两个表的 操作 , 数据库的表设计如此, 所以要加事务?
 
@@ -174,5 +180,49 @@ shoppingCartMapper.deleteByUserId(currentId);
                 .build();
 
         orderMapper.update(orders);
+
+        // 通过webSocket 向客户端推送消息
+        // 根据约定的  数据格式进行 数据的推送
+        Map map = new HashMap();
+        map.put("type" , 1) ;//  约定好1 是 订单提醒, 在支付后完成
+        map.put("orderId" , ordersDB.getId()) ; // 利用已经查出来的  订单对象进行 数据的获取
+        // 注意订单的主键要想返回 ,需要在mapperxml中加入对应的注解哦
+        map.put("content" , "订单号"+ outTradeNo) ;// 拼接一个
+
+        // 将含有三个字符串的 map 转化为json 的数据, 返回给前端
+        String jsonString = JSON.toJSONString(map);
+
+        webSocketServer.sendToAllClient(jsonString);
+        // 将消息群发给所有的连接  该server 的client
+
+
+    }
+
+
+    /**
+     * 实现客户催单
+     * @param id  要催单的订单的id
+     */
+
+    @Override
+    public void reminder(Long id) {
+        //最好先看看是否 订单存储
+        Orders ordersDB = orderMapper.getById(id);
+        // 如果 订单 不存在, 或者订单在派送中, 就不能再 进行催单了, 因为这是骑手的事情,不是 商家的
+        //   || ordersDB.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)  , 通过订单内部封装的常量类即可
+        if( ordersDB == null  )
+        {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR) ;// 传入订单状态 错误的 异常
+            // 统一异常处理即可
+        }
+        // 推送消息, 给商家端 ,构造一个 map  , 转换为 json 的格式即可
+        Map map = new HashMap();
+map.put("type" ,2 ) ;
+map.put("orderId" , id) ;
+
+map.put("content" , "订单号"+ ordersDB.getNumber()) ;
+        String jsonString = JSON.toJSONString(map);
+
+        webSocketServer.sendToAllClient(jsonString);
     }
 }

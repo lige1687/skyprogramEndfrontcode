@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sky.properties.WeChatProperties;
 import com.sky.service.OrderService;
+import com.sky.websocket.WebSocketServer;
 import com.wechat.pay.contrib.apache.httpclient.util.AesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.entity.ContentType;
@@ -28,6 +29,9 @@ public class PayNotifyController {
     private OrderService orderService;
     @Autowired
     private WeChatProperties weChatProperties;
+    @Autowired
+    private WebSocketServer webSocketServer; // 给 管理端进行一些订单的提醒, 如成功支付 ,推送给前端消息
+    // 通过websocket 进行主动的推送, 而非请求
 
     /**
      * 支付成功回调
@@ -45,7 +49,7 @@ public class PayNotifyController {
         log.info("解密后的文本：{}", plainText);
 
         JSONObject jsonObject = JSON.parseObject(plainText);
-        String outTradeNo = jsonObject.getString("out_trade_no");//商户平台订单号
+        String outTradeNo = jsonObject.getString("out_trade_no");//商户平台订单号, 这里都是固定 的, 根据 微信的官方文档进行解析即可
         String transactionId = jsonObject.getString("transaction_id");//微信支付交易号
 
         log.info("商户平台订单号：{}", outTradeNo);

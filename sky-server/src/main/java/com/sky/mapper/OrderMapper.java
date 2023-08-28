@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -31,7 +32,7 @@ public interface OrderMapper {
 
     /**
      * 修改订单信息
-     * @param orders
+     * @param orders 传过来的修改好的订单对象 ( 对数据库中进行覆盖
      */
     void update(Orders orders);
 
@@ -42,4 +43,14 @@ public interface OrderMapper {
     @Select("select * from orders where status =#{status} and order_time < #{orderTime} )")
     List<Orders>  getBystatusAndOrderTime(Integer status, LocalDateTime orderTime) ;
 
+    @Select("select * from orders where id= #{id}")
+    Orders getById(Long id);
+
+    /**
+     * 根据map中的字段 ,查询符合的 字段 的 金融总和 , 这里查询的是营业额
+     * @param map 待查询的条件们
+     * @return 返回 总营业额,  sum(amount)
+     */
+
+    Double sumByMap(HashMap<Object, Object> map);
 }

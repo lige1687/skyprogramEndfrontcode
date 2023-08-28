@@ -47,4 +47,25 @@
         </set>
         where id = #{id}
     </update>
+    <select id="sumByMap" resultType="java.lang.Double">
+select  sum(amount) from orders
+<where>
+# 注意前后一致 ,参数是一个mapp ,所以我们这里 写的是 key 的值, 才能正确的将对应value 取出来
+# 传入mapper , 使得查询的参数更加的 可选, 使得mapper方法更加通用
+       <if test="begin != null">
+         # &gt; 就是 > 的转义符号
+           and order_time &gt; #{begin}
+       </if>
+    <if test="end != null">
+        # &gt; 就是 > 的转义符号
+        and order_time &lt; #{end}
+    </if>
+    <if test="status != null">
+        # &gt; 就是 > 的转义符号
+        and status=  #{status}
+    </if>
+</where>
+
+    </select>
+
 </mapper>

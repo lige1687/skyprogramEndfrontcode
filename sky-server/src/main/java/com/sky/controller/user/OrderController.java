@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
+
 @RestController("userOrderController")
 @Slf4j
 @Api( tags = "订单相关操作")
@@ -42,7 +44,15 @@ OrderSubmitVO orderSubmitVO = orderService.submitOrder(ordersSubmitDTO);
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
         return Result.success(orderPaymentVO);
+
     }
 
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("客户催单")
+public Result reminder(@PathVariable  Long id)
+{
+    orderService.reminder(id);
+    return Result.success() ;
+}
 }
 
