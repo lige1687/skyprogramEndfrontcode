@@ -67,5 +67,23 @@ select  sum(amount) from orders
 </where>
 
     </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        select  count(id) from orders
+        # 上边是返回 sum 总和, 这里返回  count 总个数
+        <where>
+            <if test="begin != null">
+                # &gt; 就是 > 的转义符号
+                and order_time &gt; #{begin}
+            </if>
+            <if test="end != null">
+                # &gt; 就是 > 的转义符号
+                and order_time &lt; #{end}
+            </if>
+            <if test="status != null">
+                # &gt; 就是 > 的转义符号
+                and status=  #{status}
+            </if>
+        </where>
+    </select>
 
 </mapper>

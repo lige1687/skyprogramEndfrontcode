@@ -53,4 +53,7 @@ public interface OrderMapper {
      */
 
     Double sumByMap(HashMap<Object, Object> map);
+
+
+    Integer countByMap(HashMap<Object, Object> map);
 }

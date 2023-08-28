@@ -4,7 +4,9 @@ import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
+import com.sky.result.Result;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import io.swagger.models.auth.In;
@@ -135,6 +137,64 @@ public class ReportServiceImpl  implements ReportService {
         totalUserList(StringUtil.join("," , totalUserlist))   // 表示每一天的 用户总和的list
                 .newUserList(StringUtil.join(",", newUserlist)) // newuserlist 表示 每一天的 新增用户的 数据构成的list( 对应x轴的每一天
                 .build();
+    }
+
+    @Override
+    public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
+        ArrayList<LocalDate> dateArrayList = new ArrayList<>();
+        dateArrayList.add(begin);
+        while(! begin.equals(end))
+
+        {
+            begin = begin.plusDays(1) ; //  加到 list集合中
+            dateArrayList.add(begin);
+        }
+        List<Integer> effectiveOrderslist = new ArrayList<>() ;  // 存储每一天的有效 订单
+        List<Integer> totalOrderslist = new ArrayList<>() ; // 存储每一天的总订单
+
+        for (LocalDate date : dateArrayList) {
+
+            // 查询订单总数 ( select count (id) from  orders where order_time < begin ands order_time > end
+            // 同样要进行 date类型的转换
+
+            LocalDateTime begintime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endtime = LocalDateTime.of(date, LocalTime.MAX);//  注意datetime和 localdate 的区别, 一个有 时分秒, 一个没有
+            HashMap<Object, Object> map = new HashMap<>();
+map.put("begin" , begintime) ;
+map.put("end", endtime) ;
+Integer totalOrders= orderMapper.countByMap( map); // 已有的方法不能用,我们就去手写一个!  countByMap , 根据map传入的集合 进行查询
+            // 查询每一天的有效订单个数 , 有效订单数, 多一个 status 条件查询, 表明是有效的
+
+       map.put("status", Orders.COMPLETED) ; // 5 表示有效, 在我们 的orders 中写好 的常量
+
+
+            // 这里mapper 的方法实际可以封装成一个 内置的方法进行复用的
+            Integer effectiveOrders = orderMapper.countByMap(map) ;
+
+            effectiveOrderslist .add(effectiveOrders) ;
+            totalOrderslist.add(totalOrders) ;
+
+        }
+// 前三个list 整理好了, 加下来是三个 vo需要封装的其他量
+        // 1. 区间内的订单总数, 这里直接 遍历 我们存好的集合即可 , 不过使用 list 的stream 进行 计算更快
+
+        //  reduce 表示合并,  合并 所有元素的总和 (用 Integer下的 sum 字段进行表示 ,最后通过 get获取这个总和
+        Integer totalOrderCount = totalOrderslist.stream().reduce(Integer::sum).get();
+        Integer ValidOrderCount = effectiveOrderslist.stream().reduce(Integer::sum).get();
+
+        Double orderCompletionRate = 0.0;  // 这里必须这么写, 不然 无法识别 完成率对象, 因为if不一定成立!
+
+        // 2. 最后计算订单完成率, 就是有效的除 总的订单
+        if ( totalOrderCount !=0) {  //细节, 只有 除数不为0 的时候才能  进行除法!  且整型必须有一个转换为  double 的, 因为结果是double的
+            orderCompletionRate = ValidOrderCount.doubleValue() / totalOrderCount ;
+        }
+
+        return OrderReportVO.builder().dateList(StringUtil.join("," , dateArrayList)).
+                validOrderCountList(StringUtil.join("," ,  effectiveOrderslist)).
+                orderCountList(StringUtil.join("," ,  totalOrderslist)).totalOrderCount(totalOrderCount)
+                .validOrderCount(ValidOrderCount).
+                orderCompletionRate(orderCompletionRate).
+                build();
     }
 
 }
