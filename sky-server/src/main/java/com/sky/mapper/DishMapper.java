@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -36,4 +37,10 @@ public interface DishMapper {
     @Select("select * from dish where id = #{dishId}  ")
     Dish getByiId(Long dishId);
     // insert字段比较多, 所以直接xml , 写动态sql , 增强复用性
+    /**
+     * 根据条件统计菜品数量
+     * @param map
+     * @return
+     */
+    Integer countByMap(Map map);
 }

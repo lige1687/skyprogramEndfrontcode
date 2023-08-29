@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -76,4 +77,17 @@ public Result<TurnoverReportVO>   turnoverStatistics(    @DateTimeFormat(pattern
         return
                 Result.success(reportService.getSalesTop10(begin, end)) ;
     }
+
+    /**
+     * 导出最近excel 表格( 也属于数据统计的一个范畴 , 没有 请求参数, 没有 返回数据( 直接返回的是 一个 excel 的文件给 浏览器!
+     但是有 参数( 只是没有前端发来的请求参数罢了, 通过 response 对象 得到 浏览器端的输出流 , 从而 传过去 excel
+     */
+    @GetMapping("/export")
+    @ApiOperation("导出excel 表格")
+    public  void  export (HttpServletResponse response)
+
+    {
+        reportService.exportBussinessData(response) ;
+    }
+
 }

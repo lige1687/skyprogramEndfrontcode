@@ -10,4 +10,15 @@
         values ( #{employee.name} , #{employee.username} , #{employee.password}, #{employee.phone}, #{employee.sex}, #{employee.id_number}
          , #{employee.status}, #{employee.create_time} , #{employee.update_time} , #{employee.create_user} , #{employee.update_user}     );
     </insert>
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from dish
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
 </mapper>
